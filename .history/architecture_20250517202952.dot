@@ -1,0 +1,72 @@
+digraph {
+  rankdir=TB;
+  
+  subgraph cluster_client {
+    label="Client Applications";
+    style=filled;
+    color=lightgrey;
+    node [style=filled,color=white];
+    
+    Client [shape=box, label="Client\n(Browser/App)"];
+    PostmanTests [shape=box, label="Postman Tests"];
+    
+    Client -> PostmanTests [style=invis];
+  }
+  
+  subgraph cluster_services {
+    label="Microservices";
+    style=filled;
+    color=lightblue;
+    node [style=filled,color=white];
+    
+    OrderService [shape=box, label="Order Service\n(Port 3000)"];
+    InventoryService [shape=box, label="Inventory Service\n(Port 3001)"];
+    PaymentService [shape=box, label="Payment Service\n(Port 3002)"];
+  }
+  
+  subgraph cluster_data {
+    label="Data Stores";
+    style=filled;
+    color=lightgreen;
+    node [style=filled,color=white];
+    
+    OrderDB [shape=cylinder, label="Order Data\n(In-Memory)"];
+    InventoryDB [shape=cylinder, label="Inventory Data\n(In-Memory)"];
+    PaymentDB [shape=cylinder, label="Payment Data\n(In-Memory)"];
+  }
+  
+  subgraph cluster_patterns {
+    label="Resilience Patterns";
+    style=filled;
+    color=lightyellow;
+    node [style=filled,color=white];
+    
+    SagaPattern [shape=diamond, label="Saga Pattern"];
+    CircuitBreaker [shape=diamond, label="Circuit Breaker"];
+    RetryPattern [shape=diamond, label="Retry Pattern"];
+    Idempotency [shape=diamond, label="Idempotency"];
+  }
+  
+  // Client connections
+  Client -> OrderService [label="HTTP API calls"];
+  PostmanTests -> OrderService [label="HTTP"];
+  PostmanTests -> InventoryService [label="HTTP"];
+  PostmanTests -> PaymentService [label="HTTP"];
+  
+  // Service interactions
+  OrderService -> InventoryService [label="HTTP with\nCircuit Breaker"];
+  OrderService -> PaymentService [label="HTTP with\nCircuit Breaker"];
+  
+  // Services to databases
+  OrderService -> OrderDB;
+  InventoryService -> InventoryDB;
+  PaymentService -> PaymentDB;
+  
+  // Services to patterns
+  OrderService -> SagaPattern [style=dashed];
+  OrderService -> CircuitBreaker [style=dashed];
+  OrderService -> RetryPattern [style=dashed];
+  OrderService -> Idempotency [style=dashed];
+  InventoryService -> Idempotency [style=dashed];
+  PaymentService -> Idempotency [style=dashed];
+}

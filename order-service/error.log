@@ -1,0 +1,24 @@
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order b2f2991c-9757-4533-b144-29ab91c70f22","service":"order-service"}
+{"error":"items.map is not a function","level":"error","message":"Failed to release inventory for order b2f2991c-9757-4533-b144-29ab91c70f22","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 39423fd7-031a-4cfe-a3a2-c34ce2ad8330","service":"order-service"}
+{"error":"items.map is not a function","level":"error","message":"Failed to release inventory for order 39423fd7-031a-4cfe-a3a2-c34ce2ad8330","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 2fd7b37a-986c-44df-b622-94ad2ef2e8f2","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 1a8698e0-274b-48de-88ca-52e2697f6981","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 9e7f63ee-af3a-4dc8-98ec-bee4c1eb52a3","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 0ebf10a5-c78d-4acd-8c3e-55f692e7c8e7","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 9d9cc7b3-d157-479a-ac20-2dedbd4f5da4","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order e726f31e-78ac-4ba7-9241-4eb804d95964","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 432efaf7-cb44-4f03-97d2-45298f939648","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 1824bdb0-3aad-4d16-a455-18dcf39d356b","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 23e8b90c-0508-4914-8528-e93e2301adbf","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order bf53dee2-db48-4045-b07c-7f43f4c597ed","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 050a5a9f-1757-4c8a-a9d8-195759d2c5bb","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 1b32c6dc-bc84-4c89-910a-1df0f3e4cf55","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 8b27c385-145c-4430-b60e-22e17a7798bd","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 52e5cf19-51ea-4f86-894e-47be7dc2ae13","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 8786c464-8c66-463a-85b0-7d851130738d","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order 444268fe-1e34-40ec-a747-e735bd5d640f","service":"order-service"}
+{"error":"Payment service is currently unavailable. Please try again later.","level":"error","message":"Payment failed for order c9674b98-4e6e-48d5-b434-3ea3128e8a0b","service":"order-service"}
+{"error":"axios is not defined","level":"error","message":"Inventory check failed for order d8673da9-4d24-4708-a7a7-e75def1b2e6b","service":"order-service"}
+{"error":"axios is not defined","level":"error","message":"Inventory check failed for order 8420aa2c-9fb2-4244-9b48-12a44b9d1cfd","service":"order-service"}
+{"error":"axios is not defined","level":"error","message":"Inventory check failed for order 6604f61c-cd98-46f1-83ef-a3edd7aaf2e4","service":"order-service"}

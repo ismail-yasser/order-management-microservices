@@ -1,0 +1,81 @@
+title Order Management System - Saga Pattern Sequence Diagram
+
+participant Client
+participant OrderService
+participant InventoryService
+participant PaymentService
+
+note over OrderService, PaymentService: Successful Order Flow
+Client->OrderService: Place Order
+activate OrderService
+
+OrderService->OrderService: Create Order (PENDING)
+OrderService->InventoryService: Check Inventory
+activate InventoryService
+InventoryService-->OrderService: Inventory Available
+deactivate InventoryService
+
+OrderService->InventoryService: Reserve Inventory
+activate InventoryService
+InventoryService-->OrderService: Inventory Reserved
+deactivate InventoryService
+
+OrderService->PaymentService: Process Payment
+activate PaymentService
+PaymentService-->OrderService: Payment Successful
+deactivate PaymentService
+
+OrderService->OrderService: Update Order Status (PLACED)
+OrderService-->Client: Order Placed Successfully
+deactivate OrderService
+
+note over OrderService, PaymentService: Failure Handling with Compensating Transactions
+
+Client->OrderService: Place Order (with failure scenario)
+activate OrderService
+
+OrderService->OrderService: Create Order (PENDING)
+OrderService->InventoryService: Check Inventory
+activate InventoryService
+InventoryService-->OrderService: Inventory Available
+deactivate InventoryService
+
+OrderService->InventoryService: Reserve Inventory
+activate InventoryService
+InventoryService-->OrderService: Inventory Reserved
+deactivate InventoryService
+
+OrderService->PaymentService: Process Payment
+activate PaymentService
+PaymentService-->OrderService: Payment Failed
+deactivate PaymentService
+
+OrderService->InventoryService: Release Inventory (Compensating Transaction)
+activate InventoryService
+InventoryService-->OrderService: Inventory Released
+deactivate InventoryService
+
+OrderService->OrderService: Update Order Status (PAYMENT_FAILED)
+OrderService-->Client: Order Failed (Payment Issue)
+deactivate OrderService
+
+note over OrderService, PaymentService: Circuit Breaker Scenario
+
+Client->OrderService: Place Order
+activate OrderService
+
+OrderService->OrderService: Create Order (PENDING)
+OrderService->InventoryService: Check Inventory (Circuit Open)
+activate InventoryService
+InventoryService-->OrderService: Circuit Open - Using Fallback
+deactivate InventoryService
+
+OrderService->OrderService: Proceed with fallback data
+OrderService->PaymentService: Process Payment
+activate PaymentService
+PaymentService-->OrderService: Payment Successful
+deactivate PaymentService
+
+OrderService->OrderService: Update Order Status (PLACED)
+OrderService-->Client: Order Placed (with fallback inventory check)
+deactivate OrderService

@@ -1,0 +1,687 @@
+{
+  "info": {
+    "name": "Order Management Microservices Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demonstrates microservices-based order management with resilience patterns and saga implementation"
+  },
+  "item": [
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the order service is running and healthy"
+          }
+        },
+        {
+          "name": "Place Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}",
+                "description": "Prevents duplicate order creation"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer\": {\n        \"id\": \"cust123\",\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\"\n    },\n    \"items\": [\n        {\n            \"productId\": \"prod1\",\n            \"name\": \"Product 1\",\n            \"price\": 10.99,\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"prod2\",\n            \"name\": \"Product 2\",\n            \"price\": 5.99,\n            \"quantity\": 1\n        }\n    ],\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"Anytown\",\n        \"zip\": \"12345\",\n        \"country\": \"US\"\n    },\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Create a new order with customer information, items, and shipping details"
+          }
+        },
+        {
+          "name": "Get Order",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Get details of an existing order"
+          }
+        },
+        {
+          "name": "Process Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}/process",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "process"
+              ]
+            },
+            "description": "Process an order (simulate payment and inventory check)"
+          }
+        },
+        {
+          "name": "Update Order",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"shippingAddress\": {\n        \"street\": \"456 New Address St\",\n        \"city\": \"New City\",\n        \"zip\": \"54321\",\n        \"country\": \"US\"\n    }\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Update an existing order"
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Cancel an existing order"
+          }
+        },
+        {
+          "name": "Fulfill Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"carrier\": \"EXPRESS\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}/fulfill",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "fulfill"
+              ]
+            },
+            "description": "Fulfill and ship an order"
+          }
+        },
+        {
+          "name": "Track Order Shipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}/track",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "track"
+              ]
+            },
+            "description": "Track the shipment of an order"
+          }
+        },
+        {
+          "name": "Get Order Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}/events",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "events"
+              ]
+            },
+            "description": "Get event history for an order"
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/metrics",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "metrics"
+              ]
+            },
+            "description": "Get prometheus metrics from the order service"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Inventory Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Check Inventory",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/inventory/check?items=%5B%7B%22productId%22%3A%22prod1%22%2C%22quantity%22%3A1%7D%5D",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "inventory",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "items",
+                  "value": "%5B%7B%22productId%22%3A%22prod1%22%2C%22quantity%22%3A1%7D%5D"
+                }
+              ]
+            },
+            "description": "Check if items are available in inventory"
+          }
+        },
+        {
+          "name": "Reserve Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        {\n            \"productId\": \"prod1\",\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"prod2\",\n            \"quantity\": 1\n        }\n    ],\n    \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/inventory/reserve",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "inventory",
+                "reserve"
+              ]
+            },
+            "description": "Reserve inventory items for an order"
+          }
+        },
+        {
+          "name": "Release Inventory",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"items\": [\n        {\n            \"productId\": \"prod1\",\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"prod2\",\n            \"quantity\": 1\n        }\n    ],\n    \"orderId\": \"{{orderId}}\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3001/inventory/release",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "inventory",
+                "release"
+              ]
+            },
+            "description": "Release reserved inventory items"
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/metrics",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "metrics"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Payment Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3002",
+              "path": [
+                "health"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Authorize Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"{{orderId}}\",\n    \"amount\": 27.97,\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/payments/authorize",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3002",
+              "path": [
+                "payments",
+                "authorize"
+              ]
+            },
+            "description": "Authorize a payment for an order"
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/metrics",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3002",
+              "path": [
+                "metrics"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Shipping Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the shipping service is running and healthy"
+          }
+        },
+        {
+          "name": "Create Shipment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "{{$guid}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"{{orderId}}\",\n    \"items\": [\n        {\n            \"productId\": \"prod1\",\n            \"name\": \"Product 1\",\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"prod2\",\n            \"name\": \"Product 2\",\n            \"quantity\": 1\n        }\n    ],\n    \"shippingAddress\": {\n        \"name\": \"John Doe\",\n        \"street\": \"123 Main St\",\n        \"city\": \"Anytown\",\n        \"zip\": \"12345\",\n        \"country\": \"US\"\n    },\n    \"carrier\": \"EXPRESS\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/shipping",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping"
+              ]
+            },
+            "description": "Create a new shipment for an order"
+          }
+        },
+        {
+          "name": "Get Shipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/shipping/{{shipmentId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping",
+                "{{shipmentId}}"
+              ]
+            },
+            "description": "Get details of an existing shipment"
+          }
+        },
+        {
+          "name": "Track Shipment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/shipping/track/{{trackingNumber}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping",
+                "track",
+                "{{trackingNumber}}"
+              ]
+            },
+            "description": "Track a shipment by its tracking number"
+          }
+        },
+        {
+          "name": "Update Shipment Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"IN_TRANSIT\",\n    \"location\": \"Distribution Center\",\n    \"notes\": \"Package in transit to destination\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3003/shipping/{{shipmentId}}/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping",
+                "{{shipmentId}}",
+                "status"
+              ]
+            },
+            "description": "Update the status of a shipment"
+          }
+        },
+        {
+          "name": "Get Shipping Label",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/shipping/labels/{{trackingNumber}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping",
+                "labels",
+                "{{trackingNumber}}"
+              ]
+            },
+            "description": "Get the shipping label PDF for a shipment"
+          }
+        },
+        {
+          "name": "Cancel Shipment",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/shipping/{{shipmentId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "shipping",
+                "{{shipmentId}}"
+              ]
+            },
+            "description": "Cancel a shipment"
+          }
+        },
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/metrics",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3003",
+              "path": [
+                "metrics"
+              ]
+            },
+            "description": "Get metrics from the shipping service"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "orderId",
+      "value": "order_id_placeholder",
+      "type": "string",
+      "description": "ID of the created order"
+    },
+    {
+      "key": "shipmentId",
+      "value": "shipment_id_placeholder",
+      "type": "string",
+      "description": "ID of the created shipment"
+    },
+    {
+      "key": "trackingNumber",
+      "value": "tracking_number_placeholder",
+      "type": "string",
+      "description": "Tracking number for a shipment"
+    }
+  ]
+}

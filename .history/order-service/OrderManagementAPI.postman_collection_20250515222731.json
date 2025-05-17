@@ -1,0 +1,226 @@
+{
+  "info": {
+    "name": "Order Management Microservice API",
+    "_postman_id": "order-management-api-collection",
+    "description": "# Order Management Microservice API Documentation\n\nThis API provides endpoints for managing the lifecycle of orders in an e-commerce system with fault tolerance and resilience built-in.\n\n## Key Features\n\n- Order placement with saga pattern for distributed transactions\n- Order processing with inventory and payment checks\n- Order tracking and status updates\n- Order fulfillment and shipping\n- Order cancellation\n- Idempotent operations with idempotency keys\n\n## Authentication\n\nAll API calls require an `idempotency-key` header for write operations to ensure exactly-once delivery semantics.\n\n## Error Handling\n\nThe API uses standard HTTP response codes to indicate the success or failure of requests.\n- 2xx: Success\n- 4xx: Client error\n- 5xx: Server error",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["health"]
+        },
+        "description": "Checks the health status of the Order service.\n\n### Response Format\n```json\n{\n  \"status\": \"OK\",\n  \"version\": \"1.0.0\",\n  \"timestamp\": \"2025-05-14T10:00:00.000Z\",\n  \"uptime\": 3600\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Metrics",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/metrics",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["metrics"]
+        },
+        "description": "Retrieves Prometheus metrics for the Order service, including order counts, processing times, and system metrics.\n\n### Response Format\nReturns Prometheus-formatted metrics data."
+      },
+      "response": []
+    },
+    {
+      "name": "Place Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "idempotency-key",
+            "value": "{{$guid}}",
+            "description": "Unique key to ensure idempotent operation"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"John Doe\",\n  \"items\": [\n    {\n      \"productId\": \"prod-123\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"prod-456\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"123 Main St, Anytown, USA 12345\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders"]
+        },
+        "description": "Places a new order in the system. This initiates a saga that coordinates inventory check and payment authorization.\n\n### Request Parameters\n| Parameter | Type | Description |\n| --- | --- | --- |\n| customer | string | Customer name or identifier |\n| items | array | Array of items to order |\n| items[].productId | string | Product identifier |\n| items[].quantity | number | Quantity to order |\n| shippingAddress | string | Shipping destination address |\n\n### Response Format\n```json\n{\n  \"success\": true,\n  \"orderId\": \"uuid-string\",\n  \"status\": \"PLACED\"\n}\n```\n\n### Error Responses\n```json\n{\n  \"success\": false,\n  \"status\": \"INVENTORY_FAILED\",\n  \"error\": \"Insufficient inventory\"\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Order",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        },
+        "description": "Retrieves information about a specific order by its ID.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Response Format\n```json\n{\n  \"id\": \"uuid-string\",\n  \"customer\": \"John Doe\",\n  \"items\": [...],\n  \"shippingAddress\": \"123 Main St, Anytown, USA 12345\",\n  \"status\": \"PLACED\",\n  \"createdAt\": \"2025-05-14T10:00:00.000Z\"\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Get Order Events",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}/events",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}", "events"]
+        },
+        "description": "Retrieves the event history for a specific order, showing all state transitions and actions performed.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Response Format\n```json\n{\n  \"events\": [\n    {\n      \"eventId\": \"uuid-string\",\n      \"eventType\": \"ORDER_CREATED\",\n      \"timestamp\": \"2025-05-14T10:00:00.000Z\",\n      \"payload\": {...}\n    },\n    {\n      \"eventId\": \"uuid-string\",\n      \"eventType\": \"INVENTORY_RESERVED\",\n      \"timestamp\": \"2025-05-14T10:00:05.000Z\",\n      \"payload\": {...}\n    },\n    ...\n  ]\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Update Order",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "idempotency-key",
+            "value": "{{$guid}}",
+            "description": "Unique key to ensure idempotent operation"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shippingAddress\": \"456 New Address St, Newtown, USA 54321\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        },
+        "description": "Updates the details of an existing order. Only orders in PLACED status can be updated.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Request Parameters\n| Parameter | Type | Description |\n| --- | --- | --- |\n| shippingAddress | string | New shipping address |\n\n### Response Format\n```json\n{\n  \"message\": \"Order updated\",\n  \"order\": {...}\n}\n```\n\n### Error Responses\n```json\n{\n  \"error\": \"Order cannot be updated after processing\"\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Cancel Order",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "{{$guid}}",
+            "description": "Unique key to ensure idempotent operation"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        },
+        "description": "Cancels an order that has not yet been processed. Only orders in PLACED status can be cancelled.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Response Format\n```json\n{\n  \"message\": \"Order cancelled\",\n  \"order\": {...}\n}\n```\n\n### Error Responses\n```json\n{\n  \"error\": \"Order cannot be cancelled after processing\"\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Process Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "{{$guid}}",
+            "description": "Unique key to ensure idempotent operation"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}/process",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}", "process"]
+        },
+        "description": "Processes an order by simulating inventory check, payment authorization, and order confirmation. This transitions the order from PLACED to CONFIRMED status.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Response Format\n```json\n{\n  \"message\": \"Order processed and confirmed\",\n  \"order\": {...}\n}\n```\n\n### Error Responses\n```json\n{\n  \"error\": \"Order already processed or cancelled\"\n}\n```"
+      },
+      "response": []
+    },
+    {
+      "name": "Fulfill Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "idempotency-key",
+            "value": "{{$guid}}",
+            "description": "Unique key to ensure idempotent operation"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}/fulfill",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}", "fulfill"]
+        },
+        "description": "Fulfills an order by simulating shipping label generation, inventory update, and shipping notification. This transitions the order from CONFIRMED to SHIPPED status.\n\n### URL Parameters\n| Parameter | Description |\n| --- | --- |\n| orderId | The unique identifier for the order |\n\n### Response Format\n```json\n{\n  \"message\": \"Order fulfilled and shipped\",\n  \"order\": {\n    \"id\": \"uuid-string\",\n    \"status\": \"SHIPPED\",\n    \"trackingNumber\": \"TRACK-1234abcd\",\n    \"shippedAt\": \"2025-05-14T11:00:00.000Z\",\n    ...\n  }\n}\n```\n\n### Error Responses\n```json\n{\n  \"error\": \"Order must be confirmed before fulfillment\"\n}\n```"
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-generate idempotency keys for write operations",
+          "if (pm.request.method !== 'GET') {",
+          "    if (!pm.request.headers.has('idempotency-key')) {",
+          "        pm.request.headers.add({",
+          "            key: 'idempotency-key',",
+          "            value: pm.variables.replaceIn('{{$guid}}')",
+          "        });",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "orderId",
+      "value": "",
+      "description": "Currently active order ID"
+    }
+  ]
+}

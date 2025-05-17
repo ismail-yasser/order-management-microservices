@@ -1,0 +1,16 @@
+{"level":"info","message":"Payment Service running on port 3002","service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":15,"service":"payment-service","statusCode":200,"url":"/health","userAgent":"PostmanRuntime/7.43.4"}
+{"amount":100,"level":"info","message":"Payment authorized","orderId":"e4bbe683-384e-48fd-b939-90a7f35e02f3","paymentId":"e3128e22-47c5-4522-8c00-41a8f749a7af","paymentMethod":"credit_card","processingTime":0.162,"service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":168,"service":"payment-service","statusCode":200,"url":"/payments/authorize","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Payment Service running on port 3002","service":"payment-service"}
+{"amount":30,"level":"info","message":"Payment authorized","orderId":"d956c679-227d-432a-bfa0-41d53e3a975c","paymentId":"12826f1b-6b06-4a8a-ae2c-e1f78ead0aad","paymentMethod":"credit_card","processingTime":0.268,"service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":285,"service":"payment-service","statusCode":200,"url":"/payments/authorize","userAgent":"axios/1.9.0"}
+{"amount":100,"level":"info","message":"Payment authorized","orderId":"82f15f6c-fa3f-415a-954c-280698547ed9","paymentId":"0587c30d-5cb0-4ca2-9bac-dfe59b37eea2","paymentMethod":"credit_card","processingTime":0.343,"service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":347,"service":"payment-service","statusCode":200,"url":"/payments/authorize","userAgent":"PostmanRuntime/7.43.4"}
+{"amount":30,"level":"info","message":"Payment authorized","orderId":"f1f7110a-2582-4242-876e-9bcc4891b321","paymentId":"120b3f99-4bbc-4fa8-a5ca-3bd71b8e7998","paymentMethod":"credit_card","processingTime":0.419,"service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":425,"service":"payment-service","statusCode":200,"url":"/payments/authorize","userAgent":"axios/1.9.0"}
+{"level":"info","message":"Payment Service running on port 3002","service":"payment-service"}
+{"level":"info","message":"Payment Service running on port 3002","service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":8,"service":"payment-service","statusCode":200,"url":"/health","userAgent":"PostmanRuntime/7.43.4"}
+{"amount":27.97,"level":"info","message":"Payment authorized","orderId":"d125ec1a-dc13-4d30-a89f-d37df8e7faf7","paymentId":"98b51eb5-1dc2-4573-ad46-ec98a3dca3a5","paymentMethod":"credit_card","processingTime":0.117,"service":"payment-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":121,"service":"payment-service","statusCode":200,"url":"/payments/authorize","userAgent":"PostmanRuntime/7.43.4"}

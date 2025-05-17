@@ -1,0 +1,101 @@
+{
+  "info": {
+    "_postman_id": "ecommerce-order-microservice-collection-v2",
+    "name": "Order Microservice API (Corrected)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Place Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"customer\": \"John Doe\",\n  \"items\": [{\"productId\": \"P123\", \"quantity\": 2}],\n  \"shippingAddress\": \"123 Main St, City, Country\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/orders",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders"]
+        }
+      }
+    },
+    {
+      "name": "Get Order Status",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
+      "name": "Update Order (Shipping Address)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"shippingAddress\": \"456 New St, New City, Country\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
+      "name": "Cancel Order",
+      "request": {
+        "method": "DELETE",
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}"]
+        }
+      }
+    },
+    {
+      "name": "Process Order",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}/process",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}", "process"]
+        }
+      }
+    },
+    {
+      "name": "Fulfill Order",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "http://localhost:3000/orders/{{orderId}}/fulfill",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3000",
+          "path": ["orders", "{{orderId}}", "fulfill"]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,496 @@
+{
+  "info": {
+    "name": "Order Management Microservices Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demonstrates microservices-based order management with resilience patterns and saga implementation"
+  },
+  "item": [
+    {
+      "name": "Order Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the Order Service is healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Store orderId for future requests",
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData && jsonData.orderId) {",
+                  "    pm.collectionVariables.set(\"orderId\", jsonData.orderId);",
+                  "    console.log(\"Order ID saved: \" + jsonData.orderId);",
+                  "}",
+                  "",
+                  "// Test for successful response",
+                  "pm.test(\"Order placed successfully\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.status).to.eql(\"PLACED\");",
+                  "});",
+                  "",
+                  "// Log success or failure",
+                  "if (jsonData.success) {",
+                  "    console.log(\"✅ Order placed successfully with ID: \" + jsonData.orderId);",
+                  "} else {",
+                  "    console.log(\"❌ Order placement failed: \" + jsonData.error);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{$randomUUID}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer\": {\n        \"id\": \"CUST-001\",\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\"\n    },\n    \"items\": [\n        {\n            \"productId\": \"PROD-001\",\n            \"quantity\": 2\n        },\n        {\n            \"productId\": \"PROD-002\",\n            \"quantity\": 1\n        }\n    ],\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"Anytown\",\n        \"zip\": \"12345\",\n        \"country\": \"USA\"\n    },\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Place a new order, triggering the saga orchestration"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test for successful response",
+                  "pm.test(\"Order retrieved successfully\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"orderId\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}"
+              ]
+            },
+            "description": "Get a specific order by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Order Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test for successful response",
+                  "pm.test(\"Order events retrieved successfully\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var events = pm.response.json();",
+                  "    ",
+                  "    // Check if we have events",
+                  "    pm.expect(events.length).to.be.greaterThan(0);",
+                  "    ",
+                  "    // Log the saga flow",
+                  "    console.log(\"===== SAGA EXECUTION FLOW =====\");",
+                  "    events.forEach(function(event) {",
+                  "        console.log(`${event.eventType}: ${event.timestamp}`);",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{orderId}}/events",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders",
+                "{{orderId}}",
+                "events"
+              ]
+            },
+            "description": "Get all events for a specific order to see the saga execution"
+          },
+          "response": []
+        }
+      ],
+      "description": "Order Service endpoints"
+    },
+    {
+      "name": "Inventory Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the Inventory Service is healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Inventory Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/inventory/status",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "inventory",
+                "status"
+              ]
+            },
+            "description": "Get current inventory status"
+          },
+          "response": []
+        },
+        {
+          "name": "Check Inventory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test for successful response",
+                  "pm.test(\"Inventory check successful\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    // Log availability",
+                  "    if (jsonData.available) {",
+                  "        console.log(\"✅ All items are available\");",
+                  "    } else {",
+                  "        console.log(\"❌ Some items are not available\");",
+                  "        jsonData.items.forEach(function(item) {",
+                  "            if (!item.available) {",
+                  "                console.log(`  - Product ${item.productId}: Not available`);",
+                  "            }",
+                  "        });",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3001/inventory/check?items=[{\"productId\":\"PROD-001\",\"quantity\":2},{\"productId\":\"PROD-002\",\"quantity\":1}]",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3001",
+              "path": [
+                "inventory",
+                "check"
+              ],
+              "query": [
+                {
+                  "key": "items",
+                  "value": "[{\"productId\":\"PROD-001\",\"quantity\":2},{\"productId\":\"PROD-002\",\"quantity\":1}]"
+                }
+              ]
+            },
+            "description": "Check if items are available in inventory"
+          },
+          "response": []
+        }
+      ],
+      "description": "Inventory Service endpoints"
+    },
+    {
+      "name": "Payment Service",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3002/health",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3002",
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Check if the Payment Service is healthy"
+          },
+          "response": []
+        },
+        {
+          "name": "Authorize Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test for successful response",
+                  "pm.test(\"Payment authorized successfully\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData.status).to.eql(\"AUTHORIZED\");",
+                  "    ",
+                  "    // Store payment ID",
+                  "    if (jsonData.paymentId) {",
+                  "        pm.collectionVariables.set(\"paymentId\", jsonData.paymentId);",
+                  "    }",
+                  "    ",
+                  "    console.log(\"✅ Payment authorized with ID: \" + jsonData.paymentId);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"orderId\": \"{{$guid}}\",\n    \"amount\": 100,\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3002/payments/authorize",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3002",
+              "path": [
+                "payments",
+                "authorize"
+              ]
+            },
+            "description": "Authorize a payment"
+          },
+          "response": []
+        }
+      ],
+      "description": "Payment Service endpoints"
+    },
+    {
+      "name": "Failure Scenarios",
+      "item": [
+        {
+          "name": "Order with Invalid Inventory",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Test for failure response",
+                  "pm.test(\"Order should fail due to inventory\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    ",
+                  "    // Log the result",
+                  "    if (jsonData.success === false && jsonData.status.includes('INVENTORY')) {",
+                  "        console.log(\"✅ Test passed: Order correctly failed due to inventory issues\");",
+                  "        console.log(`Status: ${jsonData.status}`);",
+                  "        if (jsonData.error) {",
+                  "            console.log(`Error: ${jsonData.error}`);",
+                  "        }",
+                  "    } else {",
+                  "        console.log(\"❓ Expected an inventory failure but got:\");",
+                  "        console.log(jsonData);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "idempotency-key",
+                "value": "{{$randomUUID}}",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"customer\": {\n        \"id\": \"CUST-001\",\n        \"name\": \"John Doe\",\n        \"email\": \"john@example.com\"\n    },\n    \"items\": [\n        {\n            \"productId\": \"PROD-001\",\n            \"quantity\": 999\n        },\n        {\n            \"productId\": \"PROD-999\",\n            \"quantity\": 1\n        }\n    ],\n    \"shippingAddress\": {\n        \"street\": \"123 Main St\",\n        \"city\": \"Anytown\",\n        \"zip\": \"12345\",\n        \"country\": \"USA\"\n    },\n    \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "orders"
+              ]
+            },
+            "description": "Place an order with invalid inventory (saga should fail at inventory step)"
+          },
+          "response": []
+        },
+        {
+          "name": "Chaos Mode: Order Service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// This request enables chaos mode for testing resilience patterns"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health?chaosMode=true",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "3000",
+              "path": [
+                "health"
+              ],
+              "query": [
+                {
+                  "key": "chaosMode",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Enable chaos mode to test resilience patterns"
+          },
+          "response": []
+        }
+      ],
+      "description": "Scenarios to test failure handling and resilience patterns"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "paymentId",
+      "value": ""
+    }
+  ]
+}

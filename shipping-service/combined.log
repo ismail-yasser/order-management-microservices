@@ -1,0 +1,26 @@
+{"level":"info","message":"Shipping Service running on port 3003","service":"shipping-service"}
+{"level":"info","message":"Shipping Service running on port 3003","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":9,"service":"shipping-service","statusCode":200,"url":"/health","userAgent":"PostmanRuntime/7.43.4"}
+{"carrier":"EXPRESS","level":"info","message":"Shipping label generated for order d125ec1a-dc13-4d30-a89f-d37df8e7faf7","processingTime":0.068,"service":"shipping-service","trackingNumber":"TRKVRBMGWB7"}
+{"carrier":"EXPRESS","level":"info","message":"Shipment created for order d125ec1a-dc13-4d30-a89f-d37df8e7faf7","service":"shipping-service","shipmentId":"131ecc6f-f827-454e-a5f9-ab17b2afd02b","trackingNumber":"TRKVRBMGWB7"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":252,"service":"shipping-service","statusCode":201,"url":"/shipping","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Shipment not found: shipment_id_placeholder","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"shipping-service","statusCode":404,"url":"/shipping/shipment_id_placeholder","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Shipment not found: shipment_id_placeholder","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":1,"service":"shipping-service","statusCode":404,"url":"/shipping/shipment_id_placeholder","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Shipment retrieved: 131ecc6f-f827-454e-a5f9-ab17b2afd02b","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":1,"service":"shipping-service","statusCode":200,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Shipment not found for tracking number: tracking_number_placeholder","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"shipping-service","statusCode":404,"url":"/shipping/track/tracking_number_placeholder","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Tracking info retrieved for: TRKVRBMGWB7","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":1,"service":"shipping-service","statusCode":200,"url":"/shipping/track/TRKVRBMGWB7","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","location":"Distribution Center","message":"Shipment status updated: 131ecc6f-f827-454e-a5f9-ab17b2afd02b","service":"shipping-service","status":"IN_TRANSIT"}
+{"ip":"::1","level":"info","message":"API Request","method":"PUT","responseTime":2,"service":"shipping-service","statusCode":200,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b/status","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Label retrieved for tracking number: TRKVRBMGWB7","service":"shipping-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":4,"service":"shipping-service","statusCode":200,"url":"/shipping/labels/TRKVRBMGWB7","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"DELETE","responseTime":1,"service":"shipping-service","statusCode":400,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"DELETE","responseTime":1,"service":"shipping-service","statusCode":400,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"DELETE","responseTime":1,"service":"shipping-service","statusCode":400,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"DELETE","responseTime":0,"service":"shipping-service","statusCode":400,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"DELETE","responseTime":1,"service":"shipping-service","statusCode":400,"url":"/shipping/131ecc6f-f827-454e-a5f9-ab17b2afd02b","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":8,"service":"shipping-service","statusCode":200,"url":"/metrics","userAgent":"PostmanRuntime/7.43.4"}

@@ -1,0 +1,681 @@
+{
+  "info": {
+    "name": "Enhanced Order Management API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Advanced Postman collection demonstrating microservice architecture with fault tolerance and resilience patterns. Features include circuit breakers, retry mechanisms, and the Saga pattern."
+  },
+  "item": [
+    {
+      "name": "System Status",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["health"]
+            },
+            "description": "Checks the health status of the order service."
+          }
+        },
+        {
+          "name": "Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/metrics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["metrics"]
+            },
+            "description": "Retrieves Prometheus metrics including circuit breaker state, retry counts, and order processing durations."
+          }
+        }
+      ],
+      "description": "Monitor system health and metrics"
+    },
+    {
+      "name": "Successful Order Flow 1: Basic",
+      "item": [
+        {
+          "name": "1. Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set('order_id_1', jsonData.orderId);",
+                  "        console.log('Flow 1: Stored order_id_1: ' + jsonData.orderId);",
+                  "        pm.test(\"Order ID stored for Flow 1\", function() {",
+                  "            pm.expect(jsonData.orderId).to.not.be.null;",
+                  "        });",
+                  "    }",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-123-flow1-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"John Doe\",\n  \"items\": [\n    {\n      \"productId\": \"product-001\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"product-002\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"123 Main St, Springfield\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            },
+            "description": "Place a new order with idempotency key to prevent duplicate order creation."
+          }
+        },
+        {
+          "name": "2. Get Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Verify we have an order_id_1 before proceeding",
+                  "const orderId = pm.environment.get('order_id_1');",
+                  "if (!orderId) {",
+                  "    console.error('No order_id_1 found in environment. Run the Place Order request first.');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Flow 1: Get Order successful\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.equal(pm.environment.get('order_id_1'));",
+                  "    console.log('Flow 1: Retrieved order with ID: ' + jsonData.id);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_1}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_1}}"]
+            },
+            "description": "Retrieve the order details using the order ID. This should show the order in PLACED status."
+          }
+        },
+        {
+          "name": "3. Process Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Verify we have an order_id_1 before proceeding",
+                  "const orderId = pm.environment.get('order_id_1');",
+                  "if (!orderId) {",
+                  "    console.error('No order_id_1 found in environment. Run the Place Order request first.');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Flow 1: Process Order successful\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.order.status).to.equal('CONFIRMED');",
+                  "    console.log('Flow 1: Processed order with ID: ' + jsonData.order.id + ', status: ' + jsonData.order.status);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "process-123-flow1-{{$timestamp}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_1}}/process",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_1}}", "process"]
+            },
+            "description": "Process the order, changing its status to CONFIRMED."
+          }
+        },
+        {
+          "name": "4. Fulfill Order",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Verify we have an order_id_1 before proceeding",
+                  "const orderId = pm.environment.get('order_id_1');",
+                  "if (!orderId) {",
+                  "    console.error('No order_id_1 found in environment. Run the Place Order request first.');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Flow 1: Fulfill Order successful\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.order.status).to.equal('SHIPPED');",
+                  "    pm.expect(jsonData.order.trackingNumber).to.not.be.null;",
+                  "    console.log('Flow 1: Fulfilled order with ID: ' + jsonData.order.id + ', status: ' + jsonData.order.status);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "fulfill-123-flow1-{{$timestamp}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_1}}/fulfill",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_1}}", "fulfill"]
+            },
+            "description": "Fulfill the order, changing its status to SHIPPED and generating a tracking number."
+          }
+        },
+        {
+          "name": "5. Get Order Events",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Verify we have an order_id_1 before proceeding",
+                  "const orderId = pm.environment.get('order_id_1');",
+                  "if (!orderId) {",
+                  "    console.error('No order_id_1 found in environment. Run the Place Order request first.');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Flow 1: Get Order Events successful\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.events).to.be.an('array').that.is.not.empty;",
+                  "    console.log('Flow 1: Retrieved ' + jsonData.events.length + ' events for order ID: ' + pm.environment.get('order_id_1'));",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_1}}/events",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_1}}", "events"]
+            },
+            "description": "Get all events associated with this order to trace its lifecycle."
+          }
+        }
+      ],
+      "description": "A complete end-to-end successful order flow from placement through processing to fulfillment."
+    },
+    {
+      "name": "Successful Order Flow 2: With Update",
+      "item": [
+        {
+          "name": "1. Place Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set('order_id_2', jsonData.orderId);",
+                  "        console.log('Flow 2: Stored order_id_2: ' + jsonData.orderId);",
+                  "        pm.test(\"Order ID stored for Flow 2\", function() {",
+                  "            pm.expect(jsonData.orderId).to.not.be.null;",
+                  "        });",
+                  "    }",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-456-flow2-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Jane Smith\",\n  \"items\": [\n    {\n      \"productId\": \"product-003\",\n      \"quantity\": 1\n    },\n    {\n      \"productId\": \"product-004\",\n      \"quantity\": 3\n    }\n  ],\n  \"shippingAddress\": \"456 Oak St, Cityville\",\n  \"paymentMethod\": \"paypal\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            },
+            "description": "Place a new order for a different customer with different products."
+          }
+        },
+        {
+          "name": "2. Update Order Address",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "// Verify we have an order_id_2 before proceeding",
+                  "const orderId = pm.environment.get('order_id_2');",
+                  "if (!orderId) {",
+                  "    console.error('No order_id_2 found in environment. Run the Place Order request first.');",
+                  "}",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Flow 2: Update Order successful\", function() {",
+                  "    pm.response.to.have.status(200);",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.order.shippingAddress).to.equal('789 Pine St, Townsville');",
+                  "    console.log('Flow 2: Updated order with ID: ' + jsonData.order.id + ', new address: ' + jsonData.order.shippingAddress);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "update-456-flow2"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"789 Pine St, Townsville\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_2}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_2}}"]
+            },
+            "description": "Update the shipping address before processing the order."
+          }
+        },
+        {
+          "name": "3. Process Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "process-456-flow2"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_2}}/process",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_2}}", "process"]
+            },
+            "description": "Process the order with the updated shipping address."
+          }
+        },
+        {
+          "name": "4. Fulfill Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "fulfill-456-flow2"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_2}}/fulfill",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_2}}", "fulfill"]
+            },
+            "description": "Fulfill the order with the updated shipping address."
+          }
+        },
+        {
+          "name": "5. Get Order Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_2}}/events",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_2}}", "events"]
+            },
+            "description": "Get all events for this order including the address update."
+          }
+        }
+      ],
+      "description": "A successful order flow that includes updating order details before processing."
+    },
+    {
+      "name": "Saga Pattern Demonstration",
+      "item": [
+        {
+          "name": "1. Place Order (Inventory Fallback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-789-saga"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Robert Johnson\",\n  \"items\": [\n    {\n      \"productId\": \"limited-stock-001\",\n      \"quantity\": 5\n    }\n  ],\n  \"shippingAddress\": \"101 River Rd, Villagetown\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            },
+            "description": "Place an order that will use the fallback mechanism for inventory, simulating a situation where the inventory service might be temporarily unavailable."
+          }
+        },
+        {
+          "name": "2. Get Order Events (Show Saga Flow)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id_3}}/events",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id_3}}", "events"]
+            },
+            "description": "Get events for this order to observe the saga pattern in action with potential fallback mechanisms."
+          }
+        }
+      ],
+      "description": "Demonstrates the saga pattern with possible compensation actions when services are unavailable."
+    },
+    {
+      "name": "Resilience Pattern Tests",
+      "item": [
+        {
+          "name": "1. Place Order with Retry (Chaos Mode)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-retry-test"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Emma Wilson\",\n  \"items\": [\n    {\n      \"productId\": \"product-005\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"222 Maple Ave, Suburbia\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders?chaosMode=true",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "chaosMode",
+                  "value": "true"
+                }
+              ]
+            },
+            "description": "Place an order with chaos mode enabled. The system should retry on failure. Prior to running this request, set the CHAOS_MODE environment variable to 'true' on the server."
+          }
+        },
+        {
+          "name": "2. Generate Failed Payments (Circuit Breaker Test)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-circuit-test"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Test Customer\",\n  \"items\": [\n    {\n      \"productId\": \"invalid-payment-trigger\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"333 Test St, Testville\",\n  \"paymentMethod\": \"failing_payment_method\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            },
+            "description": "This request is designed to trigger payment failures that should eventually open the circuit breaker. Run this request multiple times to see the circuit breaker pattern in action."
+          }
+        },
+        {
+          "name": "3. Check Circuit Breaker State",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/metrics",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["metrics"]
+            },
+            "description": "Check metrics to see if the circuit breaker has opened after multiple failures."
+          }
+        },
+        {
+          "name": "4. Idempotency Test (Duplicate Request)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "order-idempotency-test"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Duplicate Test\",\n  \"items\": [\n    {\n      \"productId\": \"product-006\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"444 Idempotent St, Safetown\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            },
+            "description": "Send this request multiple times with the same idempotency key. The system should return the same response each time without creating duplicate orders."
+          }
+        }
+      ],
+      "description": "Tests demonstrating resilience patterns including retries, circuit breakers, and idempotency."
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set environment variables based on responses",
+          "pm.variables.set('timestamp', new Date().getTime());",
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Extract and store order IDs from responses",
+          "if (pm.response.code === 201 || pm.response.code === 200) {",
+          "    const jsonData = pm.response.json();",
+          "    ",
+          "    // Store order ID from place order response",
+          "    if (jsonData.orderId) {",
+          "        // For the first successful flow",
+          "        if (pm.request.url.toString().includes('order-123-flow1')) {",
+          "            pm.environment.set('order_id_1', jsonData.orderId);",
+          "            console.log('Stored order_id_1: ' + jsonData.orderId);",
+          "        }",
+          "        // For the second successful flow",
+          "        else if (pm.request.url.toString().includes('order-456-flow2')) {",
+          "            pm.environment.set('order_id_2', jsonData.orderId);",
+          "            console.log('Stored order_id_2: ' + jsonData.orderId);",
+          "        }",
+          "        // For the saga demonstration",
+          "        else if (pm.request.url.toString().includes('order-789-saga')) {",
+          "            pm.environment.set('order_id_3', jsonData.orderId);",
+          "            console.log('Stored order_id_3: ' + jsonData.orderId);",
+          "        }",
+          "        // For resilience tests",
+          "        else if (pm.request.url.toString().includes('retry-test') || ",
+          "                 pm.request.url.toString().includes('circuit-test') || ",
+          "                 pm.request.url.toString().includes('idempotency-test')) {",
+          "            pm.environment.set('test_order_id', jsonData.orderId);",
+          "            console.log('Stored test_order_id: ' + jsonData.orderId);",
+          "        }",
+          "    }",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    }
+  ]
+}

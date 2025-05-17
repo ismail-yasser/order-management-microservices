@@ -1,0 +1,287 @@
+{
+  "info": {
+    "name": "Order Management Demo",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Demonstrates order management with resilience patterns and saga implementation"
+  },
+  "item": [
+    {
+      "name": "Order Management Demo",
+      "item": [
+        {
+          "name": "1. Health & Metrics",
+          "item": [
+            {
+              "name": "Check Health",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/health",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3000",
+                  "path": ["health"]
+                }
+              }
+            },
+            {
+              "name": "Check Metrics",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "http://localhost:3000/metrics",
+                  "protocol": "http",
+                  "host": ["localhost"],
+                  "port": "3000",
+                  "path": ["metrics"]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Create Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set('order_id', jsonData.orderId);",
+                  "        console.log('Created order with ID: ' + jsonData.orderId);",
+                  "        pm.test(\"Order created successfully\", function() {",
+                  "            pm.expect(jsonData.orderId).to.not.be.null;",
+                  "        });",
+                  "    }",
+                  "} else if (pm.response.code === 400) {",
+                  "    console.log('Payment failure or inventory issue - expected in demo');",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set('order_id', jsonData.orderId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "demo-order-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Demo Customer\",\n  \"items\": [\n    {\n      \"productId\": \"product-001\",\n      \"quantity\": 2\n    }\n  ],\n  \"shippingAddress\": \"123 Test St, Demoville\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"]
+            }
+          }
+        },
+        {
+          "name": "3. Update Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Update successful\", function() {",
+                  "    if (pm.response.code === 200) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.order.shippingAddress).to.equal('456 Updated St, Demoville');",
+                  "        console.log('Updated order address');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "demo-update-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"shippingAddress\": \"456 Updated St, Demoville\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id}}",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id}}"]
+            }
+          }
+        },
+        {
+          "name": "4. Process Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Process Order\", function() {",
+                  "    if (pm.response.code === 200) {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.order.status).to.equal('CONFIRMED');",
+                  "        console.log('Order processed successfully');",
+                  "    } else {",
+                  "        console.log('Order processing failed - this demonstrates resilience patterns');",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Idempotency-Key",
+                "value": "demo-process-{{$timestamp}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id}}/process",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id}}", "process"]
+            }
+          }
+        },
+        {
+          "name": "5. Check Events",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Check Events\", function() {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.events).to.be.an('array').that.is.not.empty;",
+                  "    ",
+                  "    // Log each event to show the saga pattern",
+                  "    console.log('\\nOrder Event Timeline:');",
+                  "    jsonData.events.forEach(event => {",
+                  "        console.log(`${event.eventType}: ${event.timestamp}`);",
+                  "        if (event.payload && event.payload.usingFallback) {",
+                  "            console.log('-> Using fallback mechanism (demonstrates resilience)');",
+                  "        }",
+                  "        if (event.eventType === 'INVENTORY_RELEASED') {",
+                  "            console.log('-> Compensating transaction executed (saga pattern)');",
+                  "        }",
+                  "    });",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/orders/{{order_id}}/events",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders", "{{order_id}}", "events"]
+            }
+          }
+        },
+        {
+          "name": "6. Retry Test (Chaos Mode)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 500) {",
+                  "    console.log('Chaos mode triggered - demonstrating retry mechanism');",
+                  "} else if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "    console.log('Request succeeded after potential retries');",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.orderId) {",
+                  "        pm.environment.set('chaos_order_id', jsonData.orderId);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "demo-chaos-{{$timestamp}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customer\": \"Chaos Test\",\n  \"items\": [\n    {\n      \"productId\": \"product-005\",\n      \"quantity\": 1\n    }\n  ],\n  \"shippingAddress\": \"789 Chaos St, Testville\",\n  \"paymentMethod\": \"credit_card\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/orders?chaosMode=true",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["orders"],
+              "query": [
+                {
+                  "key": "chaosMode",
+                  "value": "true"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "description": "Complete demonstration of order flow with resilience patterns"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set timestamp for unique idempotency keys",
+          "pm.variables.set('$timestamp', new Date().getTime());"
+        ]
+      }
+    }
+  ]
+}

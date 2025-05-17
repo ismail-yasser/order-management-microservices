@@ -1,0 +1,43 @@
+{"level":"info","message":"Inventory Service running on port 3001","service":"inventory-service"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.045,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":63,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:2%7D,%7B%22productId%22:%22PROD-002%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/health","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/inventory/status","userAgent":"PostmanRuntime/7.43.4"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.061,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":64,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:2%7D,%7B%22productId%22:%22PROD-002%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"available":false,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.097,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":102,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:999%7D,%7B%22productId%22:%22PROD-999%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.063,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":66,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[{%22productId%22:%22PROD-001%22,%22quantity%22:2},{%22productId%22:%22PROD-002%22,%22quantity%22:1}]","userAgent":"PostmanRuntime/7.43.4"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.053,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":57,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:2%7D,%7B%22productId%22:%22PROD-002%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"level":"info","message":"Inventory Service running on port 3001","service":"inventory-service"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.054,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":70,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:2%7D,%7B%22productId%22:%22PROD-002%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"itemCount":2,"level":"info","message":"Inventory reservation completed","orderId":"d956c679-227d-432a-bfa0-41d53e3a975c","processingTime":0.002,"reserved":true,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":7,"service":"inventory-service","statusCode":200,"url":"/inventory/reserve","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/inventory/status","userAgent":"PostmanRuntime/7.43.4"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.052,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":56,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[{%22productId%22:%22PROD-001%22,%22quantity%22:2},{%22productId%22:%22PROD-002%22,%22quantity%22:1}]","userAgent":"PostmanRuntime/7.43.4"}
+{"available":false,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.022,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":24,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:999%7D,%7B%22productId%22:%22PROD-999%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/inventory/status","userAgent":"PostmanRuntime/7.43.4"}
+{"available":true,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.001,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":3,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22PROD-001%22,%22quantity%22:2%7D,%7B%22productId%22:%22PROD-002%22,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"itemCount":2,"level":"info","message":"Inventory reservation completed","orderId":"f1f7110a-2582-4242-876e-9bcc4891b321","processingTime":0.085,"reserved":true,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":88,"service":"inventory-service","statusCode":200,"url":"/inventory/reserve","userAgent":"axios/1.9.0"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/inventory/status","userAgent":"PostmanRuntime/7.43.4"}
+{"level":"info","message":"Inventory Service running on port 3001","service":"inventory-service"}
+{"level":"info","message":"Inventory Service running on port 3001","service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":9,"service":"inventory-service","statusCode":200,"url":"/health","userAgent":"PostmanRuntime/7.43.4"}
+{"available":false,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.053,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":56,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22prod1%22,%22name%22:%22Product+1%22,%22price%22:10.99,%22quantity%22:2%7D,%7B%22productId%22:%22prod2%22,%22name%22:%22Product+2%22,%22price%22:5.99,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"available":false,"itemCount":2,"level":"info","message":"Inventory check completed","processingTime":0.004,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":6,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=[%7B%22productId%22:%22prod1%22,%22name%22:%22Product+1%22,%22price%22:10.99,%22quantity%22:2%7D,%7B%22productId%22:%22prod2%22,%22name%22:%22Product+2%22,%22price%22:5.99,%22quantity%22:1%7D]","userAgent":"axios/1.9.0"}
+{"available":false,"itemCount":1,"level":"info","message":"Inventory check completed","processingTime":0.001,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":2,"service":"inventory-service","statusCode":200,"url":"/inventory/check?items=%5B%7B%22productId%22%3A%22prod1%22%2C%22quantity%22%3A1%7D%5D","userAgent":"PostmanRuntime/7.43.4"}
+{"itemCount":2,"level":"info","message":"Inventory reservation completed","orderId":"d125ec1a-dc13-4d30-a89f-d37df8e7faf7","processingTime":0.114,"reserved":false,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":118,"service":"inventory-service","statusCode":200,"url":"/inventory/reserve","userAgent":"PostmanRuntime/7.43.4"}
+{"itemCount":2,"level":"info","message":"Inventory release completed","orderId":"d125ec1a-dc13-4d30-a89f-d37df8e7faf7","processingTime":0.04,"service":"inventory-service"}
+{"ip":"::1","level":"info","message":"API Request","method":"POST","responseTime":43,"service":"inventory-service","statusCode":200,"url":"/inventory/release","userAgent":"PostmanRuntime/7.43.4"}
+{"ip":"::1","level":"info","message":"API Request","method":"GET","responseTime":7,"service":"inventory-service","statusCode":200,"url":"/metrics","userAgent":"PostmanRuntime/7.43.4"}
